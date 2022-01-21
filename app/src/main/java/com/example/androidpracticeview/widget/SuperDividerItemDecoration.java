@@ -234,12 +234,7 @@ public class SuperDividerItemDecoration extends RecyclerView.ItemDecoration {
             outRect.right = dividerWidth;
         }
     }
-
-    /**
-     * dp 2 px
-     *
-     * @param dpVal
-     */
+    
     public static int dp2px(float dpVal) {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 dpVal, context.getResources().getDisplayMetrics());

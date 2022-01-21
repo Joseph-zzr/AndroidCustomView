@@ -1,13 +1,14 @@
 package com.example.androidpracticeview
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.chad.library.adapter.base.BaseQuickAdapter
-import com.chad.library.adapter.base.listener.OnItemClickListener
-
+import com.example.androidpracticeview.activity.BubbleViewActivity
+import com.example.androidpracticeview.activity.WaveByBezierActivity
 import com.example.androidpracticeview.adapter.MainAdapter
+
 import com.example.androidpracticeview.bean.TypeBean
 import com.example.androidpracticeview.widget.SuperDividerItemDecoration
 import kotlinx.android.synthetic.main.activity_main.*
@@ -33,7 +34,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 // .............................................
 //          佛祖保佑             永无BUG
 
-class MainActivity() : AppCompatActivity(), OnItemClickListener {
+class MainActivity() : AppCompatActivity() {
 
     private var adapter: MainAdapter? = null
 
@@ -41,6 +42,7 @@ class MainActivity() : AppCompatActivity(), OnItemClickListener {
 
     private val data: List<TypeBean>
         get() {
+            typeBeans.add(TypeBean("气泡漂浮动画", 0))
             typeBeans.add(TypeBean("波浪动画--贝塞尔曲线实现", 1))
             return typeBeans
         }
@@ -49,8 +51,8 @@ class MainActivity() : AppCompatActivity(), OnItemClickListener {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        adapter = MainAdapter(data);
-        adapter!!.setOnItemClickListener(this)
+        adapter = MainAdapter(data, this);
+        adapter?.setOnItemClickListener = itemClickListener
         recycler_view.layoutManager = LinearLayoutManager(this);
         recycler_view.addItemDecoration(
             SuperDividerItemDecoration.Builder(this)
@@ -58,9 +60,13 @@ class MainActivity() : AppCompatActivity(), OnItemClickListener {
         recycler_view.adapter = adapter
     }
 
-    override fun onItemClick(adapter: BaseQuickAdapter<*, *>, view: View, position: Int) {
-        TODO("Not yet implemented")
+    var itemClickListener = fun(position: Int){
+        when (typeBeans[position].type) {
+            0 -> startActivity(Intent(this@MainActivity, BubbleViewActivity::class.java))
+            1 -> startActivity(Intent(this@MainActivity, WaveByBezierActivity::class.java))
+        }
     }
+
 
 
 }

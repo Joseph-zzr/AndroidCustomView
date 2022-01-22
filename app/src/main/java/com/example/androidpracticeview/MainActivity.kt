@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.androidpracticeview.activity.AnimationBtnActivity
 import com.example.androidpracticeview.activity.BubbleViewActivity
 import com.example.androidpracticeview.activity.WaveByBezierActivity
 import com.example.androidpracticeview.adapter.MainAdapter
@@ -44,6 +45,7 @@ class MainActivity() : AppCompatActivity() {
         get() {
             typeBeans.add(TypeBean("气泡漂浮动画", 0))
             typeBeans.add(TypeBean("波浪动画--贝塞尔曲线实现", 1))
+            typeBeans.add(TypeBean("自带动画的button",2))
             return typeBeans
         }
 
@@ -64,6 +66,7 @@ class MainActivity() : AppCompatActivity() {
         when (typeBeans[position].type) {
             0 -> startActivity(Intent(this@MainActivity, BubbleViewActivity::class.java))
             1 -> startActivity(Intent(this@MainActivity, WaveByBezierActivity::class.java))
+            2 -> startActivity(Intent(this@MainActivity, AnimationBtnActivity::class.java))
         }
     }
 

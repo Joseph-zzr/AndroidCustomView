@@ -1,9 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/activity_wave_by_bezier"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.WaveByBezierActivity">
+    android:orientation="vertical">
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:gravity="center"
+        android:text="贝塞尔曲线实现的水波效果" />
+
+    <com.example.androidpracticeview.widget.WaveViewByBezier
+        android:id="@+id/wave_bezier"
+        android:layout_width="match_parent"
+        android:layout_height="100dp" />
+
+</LinearLayout>

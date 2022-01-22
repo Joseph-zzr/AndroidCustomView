@@ -14,7 +14,7 @@ import com.example.androidpracticeview.bean.TypeBean
  *      @author : Joseph
  *      e-mail  : 913870737@qq.com
  *      date    : 2022年1月21日
- *      desc    :
+ *      desc    : 主页面列表的适配器
  *      version : 1.0
  * </pre>
  */
@@ -31,7 +31,7 @@ class MainAdapter(
     }
 
     override fun onBindViewHolder(viewHolder: MainAdapterViewHolder, position: Int) {
-        viewHolder.textView.text = dataList[position].toString()
+        viewHolder.textView.text = dataList[position].title.toString()
         viewHolder.itemView.setOnClickListener {
             setOnItemClickListener?.invoke(position)
         }

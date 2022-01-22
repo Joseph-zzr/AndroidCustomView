@@ -230,6 +230,8 @@ class AnimationButton@JvmOverloads constructor(
         animator_draw_ok?.addUpdateListener {
             startDrawOk = true
             var value: Float = it.animatedValue as Float
+            //此处的理解，实线和虚线长度都是pathMeasure.length，所以在偏移phase为虚线长度时，图像不会显示，后面改变偏移量来实现绘图
+            //https://blog.csdn.net/u013270444/article/details/115408692
             effect = DashPathEffect(
                 floatArrayOf(pathMeasure!!.length, pathMeasure!!.length),
                 value * pathMeasure!!.length

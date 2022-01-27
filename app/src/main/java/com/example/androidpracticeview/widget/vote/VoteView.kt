@@ -3,6 +3,7 @@ package com.example.androidpracticeview.widget.vote
 import android.content.Context
 import android.graphics.*
 import android.graphics.drawable.BitmapDrawable
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.util.TypedValue
 import android.view.View
@@ -29,6 +30,7 @@ class VoteView @JvmOverloads constructor(
     private var bgRectF = RectF()
     private var progressRectF = RectF()
     private var voteContentRectF = Rect()
+    private var voteRightIconRectF = Rect()
 
     private var voteContentBaseline = 0
 
@@ -42,8 +44,15 @@ class VoteView @JvmOverloads constructor(
     private var progressPaint: Paint? = null
     private var borderPaint: Paint? = null
     private var voteContentTextPaint: Paint? = null
+    private var iconPaint: Paint? = null
+
+    private var rightCheckedBitmapRes: Bitmap? = null
+    private var rightIconWidth = 0
+    private var rightIconHeight = 0
 
     private var textPaintSize: Int = 0
+
+    private var voteIconMarginLeft = 0
 
     private var checkedProgressColor = 0
     private var unCheckedProgressColor = 0
@@ -60,7 +69,7 @@ class VoteView @JvmOverloads constructor(
     private var isVoteChecked = false
     private var textWidth = 0
 
-    private val defaultCheckedProgressColor = Color.argb(1, 255, 124, 5)
+    private val defaultCheckedProgressColor = Color.argb(1,255,124,1)
     private val defaultUncheckedProgressColor = Color.parseColor("#F3F3F3")
     private val defaultCheckedTextColor = Color.parseColor("#FF7C05")
     private val defaultUncheckedTextColor = Color.parseColor("#1a1a1a")
@@ -68,12 +77,24 @@ class VoteView @JvmOverloads constructor(
 
 
     init {
+        voteIconMarginLeft = dp2px(15f).toInt()
         initAttr(context, attrs, defStyleAttr)
 
         initPaint()
 
-        initColor()
+        initVoteRightIcon()
 
+        initColor()
+    }
+
+    private fun initVoteRightIcon() {
+        if (rightCheckedBitmapRes != null) {
+            if (rightIconWidth == 0 || rightIconHeight == 0) {
+                val iconSize = dp2px(36f).toInt()
+                rightIconWidth = iconSize
+                rightIconHeight = iconSize
+            }
+        }
     }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
@@ -85,6 +106,7 @@ class VoteView @JvmOverloads constructor(
         setProgressRect()
 
         setVoetContextRect()
+        setVoteRightIconRect()
     }
 
 
@@ -96,10 +118,17 @@ class VoteView @JvmOverloads constructor(
         drawBorder(canvas)
 
         drawVoteContentText(canvas)
+        drawVoteRightIcon(canvas)
     }
 
 
+
+
     private fun initPaint() {
+        iconPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+            isFilterBitmap = true
+            isDither = true
+        }
         bgPaint = getPaint(dp2px(0.5f), Color.WHITE, Paint.Style.FILL)
         progressPaint = getPaint(dp2px(0.5f), unCheckedProgressColor, Paint.Style.FILL)
         borderPaint = getPaint(dp2px(0.5f), borderColor, Paint.Style.STROKE)
@@ -133,12 +162,20 @@ class VoteView @JvmOverloads constructor(
 
 //        animDuration = typedArray.getInt(R.styleable.VoteView_voteAnimDuration, 500).toLong()
 
-//        rightCheckedBitmapRes = (typedArray.getDrawable(R.styleable.VoteView_voteCheckedIcon) as? BitmapDrawable)?.bitmap
+        rightCheckedBitmapRes = (typedArray.getDrawable(R.styleable.VoteView_voteCheckedIcon) as? BitmapDrawable)?.bitmap
 
-//        rightIconWidth = typedArray.getDimensionPixelOffset(R.styleable.VoteView_voteRightIconWidth, 0)
-//        rightIconHeight = typedArray.getDimensionPixelOffset(R.styleable.VoteView_voteRightIconHeight, 0)
+        rightIconWidth = typedArray.getDimensionPixelOffset(R.styleable.VoteView_voteRightIconWidth, 0)
+        rightIconHeight = typedArray.getDimensionPixelOffset(R.styleable.VoteView_voteRightIconHeight, 0)
 
         typedArray.recycle()
+    }
+
+    private fun drawVoteRightIcon(canvas: Canvas) {
+        if (rightCheckedBitmapRes != null && isVoteChecked) {
+            voteRightIconRectF.left = voteContentRectF.right + voteIconMarginLeft
+            voteRightIconRectF.right = voteRightIconRectF.left + rightIconWidth
+            canvas.drawBitmap(rightCheckedBitmapRes!!, null, voteRightIconRectF, iconPaint)
+        }
     }
 
         /**
@@ -188,6 +225,10 @@ class VoteView @JvmOverloads constructor(
 
     }
 
+    fun refreshView() {
+        initColor()
+        invalidate()
+    }
 
 
     private fun getPaint(strokeWidth: Float, color: Int, style: Paint.Style): Paint {
@@ -210,6 +251,13 @@ class VoteView @JvmOverloads constructor(
 
     private fun setProgressRect() {
         progressRectF.set(0f, 0f, 0f, mHeight.toFloat())
+    }
+
+    private fun setVoteRightIconRect() {
+        voteRightIconRectF.set(voteContentRectF.right + voteIconMarginLeft,
+            (mHeight - rightIconHeight) / 2,
+            voteContentRectF.right + voteIconMarginLeft + rightIconWidth,
+            (mHeight + rightIconHeight) / 2)
     }
 
     private fun getProgressRectF(): RectF {
@@ -239,7 +287,7 @@ class VoteView @JvmOverloads constructor(
 
         val fontMetrics = voteContentTextPaint!!.fontMetricsInt
         //这里就相当于，取控件一半高度 + Ascent的半高度，刚好就是baseline的高度
-        voteContentBaseline = (voteContentRectF.bottom + voteContentRectF.top - fontMetrics.bottom - fontMetrics.top) /3
+        voteContentBaseline = (voteContentRectF.bottom + voteContentRectF.top - fontMetrics.bottom - fontMetrics.top) / 2
     }
 
     fun setProgress(progress: Float) {
@@ -292,6 +340,17 @@ class VoteView @JvmOverloads constructor(
     fun setVoteContent(content: String?): VoteView {
         mVoteContent = content ?: ""
 
+        return this
+    }
+
+    fun setVoteCheckedIcon(iconBitmap: Drawable): VoteView {
+        this.rightCheckedBitmapRes = (iconBitmap as? BitmapDrawable)?.bitmap
+        return this
+    }
+
+    fun setVoteRightIconSize(width_height: Int): VoteView {
+        this.rightIconWidth = width_height
+        this.rightIconHeight = width_height
         return this
     }
 

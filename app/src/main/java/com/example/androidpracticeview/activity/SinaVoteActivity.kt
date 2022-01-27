@@ -2,7 +2,10 @@ package com.example.androidpracticeview.activity
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.LinearLayout
+import com.allen.androidcustomview.data.getMockData
 import com.example.androidpracticeview.R
+import com.example.androidpracticeview.widget.vote.VoteLayoutAdapter
 import kotlinx.android.synthetic.main.activity_sina_vote.*
 
 
@@ -16,16 +19,15 @@ import kotlinx.android.synthetic.main.activity_sina_vote.*
  * </pre>
  */
 class SinaVoteActivity : AppCompatActivity() {
+
+    private var vote_LinearLayout: LinearLayout? = null
+    var voteLayoutAdapter: VoteLayoutAdapter? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sina_vote)
-        voteview.setVoteTextSize(voteview.sp2px(15))
-            .setVoteUncheckedContentTextColor(resources.getColor(R.color.unchecked_content_text_color))
-            .setVoteCheckedContentTextColor(resources.getColor(R.color.checked_content_text_color))
-            .setVoteUncheckedProgressColor(resources.getColor(R.color.unchecked_progress_color))
-            .setVoteBorderColor(resources.getColor(R.color.border_color))
-            .setVoteBorderRadius(voteview.dp2px(3f))
-            .setVoteContent("测试")
-            .invalidate()
+        vote_LinearLayout = findViewById(R.id.vote_ll)
+        voteLayoutAdapter = VoteLayoutAdapter(vote_LinearLayout!!)
+        voteLayoutAdapter?.setData(getMockData())
     }
 }

@@ -3,6 +3,8 @@ package com.example.androidpracticeview.widget.vote
 import android.view.View
 import android.view.ViewGroup
 import com.example.androidpracticeview.bean.VoteBean
+import com.example.androidpracticeview.bean.VoteOption
+import java.lang.ref.WeakReference
 
 /**
  * <pre>
@@ -16,6 +18,7 @@ import com.example.androidpracticeview.bean.VoteBean
 class VoteLayoutAdapter(private val viewGroup: ViewGroup){
 
     private var viewHoldersList = mutableListOf<VoteViewHolder>()
+    var onVoteClickListener: OnAdapterVoteClickListener? = null
 
     fun setData(voteBeanList: ArrayList<VoteBean>?) {
         viewGroup.removeAllViews()
@@ -33,6 +36,19 @@ class VoteLayoutAdapter(private val viewGroup: ViewGroup){
         }
     }
 
+    fun refreshDataAfterVotedSuccess(position: Int) {
+        viewHoldersList[position].voteContainerView.refreshDataAfterVoteSuccess()
+    }
+
+//    fun refreshDataAfterVotedFailed(position: Int) {
+//        viewHoldersList[position].voteContainerView.refreshDataAfterVoteFailed()
+//    }
+
+    fun onDestroy() {
+        viewHoldersList.forEach {
+            it.voteContainerView.onDestroy()
+        }
+    }
     private fun onCreateViewHolder(viewGroup: ViewGroup, position: Int): VoteViewHolder {
         val view = VoteContainerView(viewGroup.context)
         return VoteViewHolder(view, this, position)
@@ -40,11 +56,30 @@ class VoteLayoutAdapter(private val viewGroup: ViewGroup){
 
     class VoteViewHolder(val voteContainerView: VoteContainerView, adapter: VoteLayoutAdapter, var position: Int){
 
+        private val adapterRef = WeakReference(adapter)
+        private fun ref(): VoteLayoutAdapter? {
+            return adapterRef.get()
+        }
+
         private var mMainVote: VoteBean? = null
         fun bind(voteBean: VoteBean) {
             mMainVote = voteBean
             voteContainerView.setVoteData(voteBean)
-        }
+            voteContainerView.onVoteClickListener = object : VoteContainerView.OnVoteClickListener {
+                override fun onVoteCommitBtnClick(mainVote: VoteBean?, optionIds: ArrayList<Int>) {
+                    ref()?.onVoteClickListener?.OnAdapterVoteCommitBtnClick(mainVote, optionIds, position)
+                }
 
+                override fun onVoteItemClick(mainVote: VoteBean?, voteOption: VoteOption?) {
+                    ref()?.onVoteClickListener?.OnAdapterVoteItemClick(mainVote, voteOption, position)
+                }
+
+            }
+        }
+    }
+
+    interface OnAdapterVoteClickListener {
+        fun OnAdapterVoteCommitBtnClick(mainVote: VoteBean?, optionIds: ArrayList<Int>, position: Int)
+        fun OnAdapterVoteItemClick(mainVote: VoteBean?, voteOption: VoteOption?, position: Int)
     }
 }

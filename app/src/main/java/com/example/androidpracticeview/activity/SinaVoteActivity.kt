@@ -5,6 +5,8 @@ import android.os.Bundle
 import android.widget.LinearLayout
 import com.allen.androidcustomview.data.getMockData
 import com.example.androidpracticeview.R
+import com.example.androidpracticeview.bean.VoteBean
+import com.example.androidpracticeview.bean.VoteOption
 import com.example.androidpracticeview.widget.vote.VoteLayoutAdapter
 import kotlinx.android.synthetic.main.activity_sina_vote.*
 
@@ -18,16 +20,36 @@ import kotlinx.android.synthetic.main.activity_sina_vote.*
  *      version : 1.0
  * </pre>
  */
-class SinaVoteActivity : AppCompatActivity() {
+class SinaVoteActivity : AppCompatActivity(), VoteLayoutAdapter.OnAdapterVoteClickListener {
 
-    private var vote_LinearLayout: LinearLayout? = null
     var voteLayoutAdapter: VoteLayoutAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_sina_vote)
-        vote_LinearLayout = findViewById(R.id.vote_ll)
-        voteLayoutAdapter = VoteLayoutAdapter(vote_LinearLayout!!)
+        voteLayoutAdapter = VoteLayoutAdapter(vote_ll!!)
         voteLayoutAdapter?.setData(getMockData())
+        voteLayoutAdapter?.onVoteClickListener = this
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        voteLayoutAdapter?.onDestroy()
+    }
+
+    override fun OnAdapterVoteCommitBtnClick(
+        mainVote: VoteBean?,
+        optionIds: ArrayList<Int>,
+        position: Int
+    ) {
+        voteLayoutAdapter?.refreshDataAfterVotedSuccess(position)
+    }
+
+    override fun OnAdapterVoteItemClick(
+        mainVote: VoteBean?,
+        voteOption: VoteOption?,
+        position: Int
+    ) {
+
     }
 }

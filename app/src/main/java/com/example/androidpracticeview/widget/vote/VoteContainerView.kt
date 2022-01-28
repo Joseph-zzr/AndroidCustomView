@@ -28,6 +28,7 @@ class VoteContainerView @JvmOverloads constructor(
 ) :FrameLayout(context, attrs, defStyleAttr) {
 
     private var voteViewHoldersList: ArrayList<VoteItemViewHodler> = arrayListOf()
+    var onVoteClickListener: OnVoteClickListener? = null
 
     companion object {
         val VOTE_TYPE_MULTIPLE = "multiple"
@@ -51,7 +52,8 @@ class VoteContainerView @JvmOverloads constructor(
 
         //投票按钮
         vote_container_vote_btn?.setOnClickListener{
-
+            if (mData == null) return@setOnClickListener
+            onVoteClickListener?.onVoteCommitBtnClick(mData, optionIdsList)
         }
     }
 
@@ -97,22 +99,53 @@ class VoteContainerView @JvmOverloads constructor(
     private fun onCreateViewHolder(): VoteItemViewHodler {
         return VoteItemViewHodler(getVoteView(context), this)
     }
+    
+    fun refreshDataAfterVoteSuccess() {
+        vote_container_vote_btn.visibility = View.GONE
+        vote_container_vote_result.visibility = View.VISIBLE
+        refreshVoteResult()
+        startprogressAnim()
+    }
+
+    private fun refreshVoteResult() {
+        val voteResult = (mData?.sumVoteCount ?: 0)
+        setVoteResult("共${(voteResult + 1)}人参与了投票")
+    }
+
+    private fun setVoteResult(result: String) {
+        vote_container_vote_result.text = result ?: ""
+    }
+
+    private fun startprogressAnim() {
+        voteViewHoldersList.forEach{
+            it.setProgress()
+        }
+    }
 
     private fun getVoteView(context: Context?): VoteView {
         val voteView = VoteView(context!!)
         voteView.setVoteTextSize(voteView.sp2px(15))
                 .setVoteUncheckedContentTextColor(resources.getColor(R.color.unchecked_content_text_color))
                 .setVoteCheckedContentTextColor(resources.getColor(R.color.checked_content_text_color))
+                .setVoteUncheckedResultTextColor(resources.getColor(R.color.unchecked_result_text_color))
+                .setVoteCheckedResultTextColor(resources.getColor(R.color.checked_result_text_color))
                 .setVoteUncheckedProgressColor(resources.getColor(R.color.unchecked_progress_color))
                 .setVoteCheckedProgressColor(resources.getColor(R.color.checked_progress_color))
                 .setVoteBorderColor(resources.getColor(R.color.border_color))
                 .setVoteBorderRadius(voteView.dp2px(3f))
                 .setVoteCheckedIcon(resources.getDrawable(R.mipmap.icon_vote_check))
                 .setVoteRightIconSize(voteView.dp2px(18f).toInt())
+                .setAnimDuration(2000L)
         val layoutParams = LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, voteView.dp2px(40F).toInt())
         layoutParams.bottomMargin = voteView.dp2px(12f).toInt()
         voteView.layoutParams = layoutParams
         return voteView
+    }
+
+    fun onDestroy() {
+        voteViewHoldersList.forEach {
+            it.onVoteDestroy()
+        }
     }
 
     private fun setVoteTitle(title: String?) {
@@ -144,23 +177,45 @@ class VoteContainerView @JvmOverloads constructor(
         private var mainVote: VoteBean? = null
         var isVoteMulti = true
 
+        private fun isHaveVoted(): Boolean {
+            return mainVote?.voted ?: false
+        }
+
+
         fun bind(position: Int, voteOption: VoteOption, mainVote: VoteBean) {
             this.data = voteOption
             this.mainVote = mainVote
 
             isVoteMulti = mainVote.choiceType == VOTE_TYPE_MULTIPLE
 
+            val voteResultCount = voteOption.showCount ?: 0
+
             voteView.setVoteIsSelected(voteOption.voted ?: false)
                 .setVoteContent(voteOption.content)
+                .setVoteResultText("${voteResultCount}人")
                 .refreshView()
 
+            if (isHaveVoted()) {
+                val sum = mainVote?.sumVoteCount ?: 0
+                val showCount = data?.showCount ?: 0
+                val progress = if (sum == 0) 0f else showCount.toFloat() / sum.toFloat()
+
+                voteView.setProgress(progress)
+            }
+
             voteView.setOnClickListener{
+                if (isHaveVoted()) return@setOnClickListener
                 if (isVoteMulti) {
                     setMultiChoice(voteView, voteOption)
                 } else {
                     setSingleChoice(voteView, voteOption)
                 }
+                ref()?.onVoteClickListener?.onVoteItemClick(mainVote, data)
             }
+        }
+
+        fun onVoteDestroy() {
+            voteView.onDestroy()
         }
 
         private fun setSingleChoice(voteView: VoteView, voteOption: VoteOption) {
@@ -171,6 +226,7 @@ class VoteContainerView @JvmOverloads constructor(
             ref()?.addOptionIds(voteOption.id ?: 0)
             voteOption.voted = true
             voteView.setVoteIsSelected(voteOption.voted ?: false).refreshView()
+            ref()?.onVoteClickListener?.onVoteCommitBtnClick(mainVote, ref()?.optionIdsList ?: arrayListOf())
         }
 
         private fun setMultiChoice(voteView: VoteView, voteOption: VoteOption) {
@@ -190,6 +246,19 @@ class VoteContainerView @JvmOverloads constructor(
             ref()?.setVoteBtnStatues()
             voteView.setVoteIsSelected(voteOption.voted ?: false).refreshView()
         }
-    }
 
+        fun setProgress() {
+            val sum = mainVote?.sumVoteCount ?: 0
+            var showCount = data?.showCount ?: 0
+            val realShowCount = if (data?.voted == true) showCount + 1 else showCount
+            voteView.setVoteResultText("${realShowCount}人")
+            mainVote?.voted = true
+            val progress = if (sum == 0) 0f else realShowCount.toFloat() / sum.toFloat()
+            voteView.setProcessWithAnim(progress)
+        }
+    }
+    interface OnVoteClickListener {
+        fun onVoteCommitBtnClick(mainVote: VoteBean?, optionIds: ArrayList<Int>)
+        fun onVoteItemClick(mainVote: VoteBean?, voteOption: VoteOption?)
+    }
 }

@@ -18,4 +18,8 @@
         <attr name="voteRightIconHeight" format="dimension" />
     </declare-styleable>
 
+    <declare-styleable name="JikeLikeView">
+        <attr name="likeNumber" format="integer"/>
+    </declare-styleable>
+
 </resources>

@@ -5,10 +5,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
-import com.example.androidpracticeview.activity.AnimationBtnActivity
-import com.example.androidpracticeview.activity.BubbleViewActivity
-import com.example.androidpracticeview.activity.SinaVoteActivity
-import com.example.androidpracticeview.activity.WaveByBezierActivity
+import com.example.androidpracticeview.activity.*
 import com.example.androidpracticeview.adapter.MainAdapter
 
 import com.example.androidpracticeview.bean.TypeBean
@@ -48,6 +45,7 @@ class MainActivity() : AppCompatActivity() {
             typeBeans.add(TypeBean("波浪动画--贝塞尔曲线实现", 1))
             typeBeans.add(TypeBean("自带动画的button",2))
             typeBeans.add(TypeBean("新浪微博投票控件（多选、单选）", 3))
+            typeBeans.add(TypeBean("即刻点赞效果", 4))
             return typeBeans
         }
 
@@ -70,6 +68,7 @@ class MainActivity() : AppCompatActivity() {
             1 -> startActivity(Intent(this@MainActivity, WaveByBezierActivity::class.java))
             2 -> startActivity(Intent(this@MainActivity, AnimationBtnActivity::class.java))
             3 -> startActivity(Intent(this@MainActivity, SinaVoteActivity::class.java))
+            4 -> startActivity(Intent(this@MainActivity, JIkeClickButtonActivity::class.java))
         }
     }
 

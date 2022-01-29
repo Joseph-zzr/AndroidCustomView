@@ -9,7 +9,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AndroidPracticeView">
-        <activity android:name=".activity.SinaVoteActivity"></activity>
+        <activity android:name=".activity.JIkeClickButtonActivity"></activity>
+        <activity android:name=".activity.SinaVoteActivity" />
         <activity android:name=".activity.AnimationBtnActivity" />
         <activity android:name=".activity.WaveByBezierActivity" />
         <activity android:name=".activity.BubbleViewActivity" />
